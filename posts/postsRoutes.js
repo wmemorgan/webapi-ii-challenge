@@ -7,10 +7,11 @@ const router = express.Router()
 // GET
 router.get(`/`, async (req, res) => {
   try {
-
+    let data = await db.find()
+    res.send(data)
   }
   catch (err) {
-
+    res.status(500).json({error: `The posts information could not be retrieved.`})
   }
 })
 
@@ -53,3 +54,5 @@ router.delete(`/`, async (req, res) => {
 
   }
 })
+
+module.exports = router
