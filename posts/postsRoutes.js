@@ -83,12 +83,20 @@ router.put(`/:id`, async (req, res) => {
 
 
 // DELETE
-router.delete(`/`, async (req, res) => {
+router.delete(`/:id`, async (req, res) => {
+  const { id } = req.params
   try {
-
+    let record = await db.findById(id)
+    // Edge case check - post ID
+    if (record.length === 0) {
+      res.status(404).json({ message: `Post ID ${id} does not exist.`})
+    } else {
+      await db.remove(id)
+      res.send(record)
+    }
   }
   catch (err) {
-
+    res.status(500).json({ error: `The post could not be removed` })
   }
 })
 
