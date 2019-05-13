@@ -16,11 +16,18 @@ router.get(`/`, async (req, res) => {
 })
 
 router.get(`/:id`, async (req, res) => {
+  const { id } = req.params
+  console.log(`GET request on ID ${id}`)
   try {
-
+    let data = await db.findById(id)
+    if (data.length === 0) {
+      res.status(404).json({message: `Post ID ${id} does not exist.`})
+    } else {
+      res.send(data)
+    }
   }
   catch (err) {
-
+    res.status(500).json({error: `The post information could not be retrieved.`})
   }
 })
 
