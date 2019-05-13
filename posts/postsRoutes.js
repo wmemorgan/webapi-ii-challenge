@@ -33,11 +33,21 @@ router.get(`/:id`, async (req, res) => {
 
 // POST
 router.post(`/`, async (req, res) => {
+  console.log(`POST request contents: `, req.body)
+  const { title, contents } = req.body
   try {
-
+    if (!title || !contents) {
+      res.status(400).json({ errorMessage: `Please provide title and contents for this post.`})
+    } else {
+      // Create new database record
+      let newId = await db.insert(req.body)
+      // Retrieve newly created record
+      let data = await db.findById(newId.id)
+      res.status(201).send(data)
+    }
   }
   catch (err) {
-
+    res.status(500).json({error: `There was an error while saving the post to the database.`})
   }
 })
 
