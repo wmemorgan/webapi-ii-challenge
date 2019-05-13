@@ -5,6 +5,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
+    "start": "yarn start",
     "server": "nodemon index.js"
   },
   "dependencies": {
