@@ -52,12 +52,32 @@ router.post(`/`, async (req, res) => {
 })
 
 // PUT
-router.put(`/`, async (req, res) => {
+router.put(`/:id`, async (req, res) => {
+  const { id } = req.params
+  const { title, contents } = req.body
+  console.log(`PUT request on ID ${id}`)
   try {
-
+    // Edge case check - content submission
+    if (!title || !contents) {
+      res.status(400).json({errorMessage: `Please provide title and contents for the post.`})
+    } else {
+      let record = await db.findById(id)
+      // Edge case check - post ID
+      if (record.length === 0) {
+        res.status(404).json({message: `Post ID ${id} does not exist`})
+      } else {
+        let updateRecordCount = await db.update(id, req.body)
+        console.log(`updateRecordCount: ${updateRecordCount}`)
+        if (updateRecordCount === 1) {
+          let data = await db.findById(id)
+          res.send(data)
+        } else throw err
+      }
+    }
+ 
   }
   catch (err) {
-
+    res.status(500).json({error: `The post information could not be modified.`})
   }
 })
 
