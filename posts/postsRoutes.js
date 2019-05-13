@@ -4,14 +4,14 @@ const db = require('../data/db')
 // Instantiate router
 const router = express.Router()
 
-// GET
+// GET Requests
 router.get(`/`, async (req, res) => {
   try {
     let data = await db.find()
     res.send(data)
   }
   catch (err) {
-    res.status(500).json({error: `The posts information could not be retrieved.`})
+    res.status(500).json({ error: `The posts information could not be retrieved.` })
   }
 })
 
@@ -20,24 +20,25 @@ router.get(`/:id`, async (req, res) => {
   console.log(`GET request on ID ${id}`)
   try {
     let data = await db.findById(id)
+    // Edge case check - post ID
     if (data.length === 0) {
-      res.status(404).json({message: `Post ID ${id} does not exist.`})
+      res.status(404).json({ message: `Post ID ${id} does not exist.` })
     } else {
       res.send(data)
     }
   }
   catch (err) {
-    res.status(500).json({error: `The post information could not be retrieved.`})
+    res.status(500).json({ error: `The post information could not be retrieved.` })
   }
 })
 
-// POST
+// POST Requets
 router.post(`/`, async (req, res) => {
   console.log(`POST request contents: `, req.body)
   const { title, contents } = req.body
   try {
     if (!title || !contents) {
-      res.status(400).json({ errorMessage: `Please provide title and contents for this post.`})
+      res.status(400).json({ errorMessage: `Please provide title and contents for this post.` })
     } else {
       // Create new database record
       let newId = await db.insert(req.body)
@@ -47,11 +48,11 @@ router.post(`/`, async (req, res) => {
     }
   }
   catch (err) {
-    res.status(500).json({error: `There was an error while saving the post to the database.`})
+    res.status(500).json({ error: `There was an error while saving the post to the database.` })
   }
 })
 
-// PUT
+// PUT Requests
 router.put(`/:id`, async (req, res) => {
   const { id } = req.params
   const { title, contents } = req.body
@@ -59,37 +60,39 @@ router.put(`/:id`, async (req, res) => {
   try {
     // Edge case check - content submission
     if (!title || !contents) {
-      res.status(400).json({errorMessage: `Please provide title and contents for the post.`})
+      res.status(400).json({ errorMessage: `Please provide title and contents for the post.` })
     } else {
-      let record = await db.findById(id)
       // Edge case check - post ID
+      let record = await db.findById(id)
       if (record.length === 0) {
-        res.status(404).json({message: `Post ID ${id} does not exist`})
+        res.status(404).json({ message: `Post ID ${id} does not exist` })
       } else {
         let updateRecordCount = await db.update(id, req.body)
         console.log(`updateRecordCount: ${updateRecordCount}`)
-        if (updateRecordCount === 1) {
+        // Confirmation successful update
+        if (updateRecordCount !== 1) {
+          throw err
+        } else {
           let data = await db.findById(id)
           res.send(data)
-        } else throw err
+        }
       }
     }
  
   }
   catch (err) {
-    res.status(500).json({error: `The post information could not be modified.`})
+    res.status(500).json({ error: `The post information could not be modified.` })
   }
 })
 
-
-// DELETE
+// DELETE Requests
 router.delete(`/:id`, async (req, res) => {
   const { id } = req.params
   try {
-    let record = await db.findById(id)
     // Edge case check - post ID
+    let record = await db.findById(id)
     if (record.length === 0) {
-      res.status(404).json({ message: `Post ID ${id} does not exist.`})
+      res.status(404).json({ message: `Post ID ${id} does not exist.` })
     } else {
       await db.remove(id)
       res.send(record)
